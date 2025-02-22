@@ -326,15 +326,23 @@ const Main: FC<IMainProps> = () => {
     setChatList(newListWithAnswer)
   }
 
-  const handleSend = async (message: string, files?: VisionFile[]) => {
+  const handleSend = async (message: string, files: VisionFile[], code?: string) => {
     if (isResponding) {
-      notify({ type: 'info', message: t('app.errorMessage.waitForResponse') })
+      notify({ type: 'info', message: t('app.chat.waitForResponse') })
       return
     }
-    const data: Record<string, any> = {
+
+    const data: {
+      inputs: Record<string, any> | null
+      query: string
+      conversation_id: string | null
+      code?: string
+      files?: VisionFile[]
+    } = {
       inputs: currInputs,
       query: message,
-      conversation_id: isNewConversation ? null : currConversationId,
+      conversation_id: currConversationId === '-1' ? null : currConversationId,
+      code,
     }
 
     if (visionConfig?.enabled && files && files?.length > 0) {
@@ -581,6 +589,7 @@ const Main: FC<IMainProps> = () => {
           }
         }))
       },
+      code,
     })
   }
 

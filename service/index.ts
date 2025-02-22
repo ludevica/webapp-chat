@@ -1,6 +1,7 @@
 import type { IOnCompleted, IOnData, IOnError, IOnFile, IOnMessageEnd, IOnMessageReplace, IOnNodeFinished, IOnNodeStarted, IOnThought, IOnWorkflowFinished, IOnWorkflowStarted } from './base'
 import { get, post, ssePost } from './base'
 import type { Feedbacktype } from '@/types/app'
+import { useCodeParam } from '@/hooks/use-code-param'
 
 export const sendChatMessage = async (
   body: Record<string, any>,
@@ -17,6 +18,7 @@ export const sendChatMessage = async (
     onNodeStarted,
     onNodeFinished,
     onWorkflowFinished,
+    code,
   }: {
     onData: IOnData
     onCompleted: IOnCompleted
@@ -30,12 +32,14 @@ export const sendChatMessage = async (
     onNodeStarted: IOnNodeStarted
     onNodeFinished: IOnNodeFinished
     onWorkflowFinished: IOnWorkflowFinished
+    code?: string
   },
 ) => {
   return ssePost('chat-messages', {
     body: {
       ...body,
       response_mode: 'streaming',
+      code,
     },
   }, { onData, onCompleted, onThought, onFile, onError, getAbortController, onMessageEnd, onMessageReplace, onNodeStarted, onWorkflowStarted, onWorkflowFinished, onNodeFinished })
 }

@@ -15,6 +15,7 @@ import Toast from '@/app/components/base/toast'
 import ChatImageUploader from '@/app/components/base/image-uploader/chat-image-uploader'
 import ImageList from '@/app/components/base/image-uploader/image-list'
 import { useImageFiles } from '@/app/components/base/image-uploader/hooks'
+import { useCodeParam } from '@/hooks/use-code-param'
 
 export type IChatProps = {
   chatList: ChatItem[]
@@ -28,7 +29,7 @@ export type IChatProps = {
   isHideSendInput?: boolean
   onFeedback?: FeedbackFunc
   checkCanSend?: () => boolean
-  onSend?: (message: string, files: VisionFile[]) => void
+  onSend?: (message: string, files: VisionFile[], code?: string) => void
   useCurrentUserAvatar?: boolean
   isResponding?: boolean
   controlClearQuery?: number
@@ -50,6 +51,7 @@ const Chat: FC<IChatProps> = ({
   const { t } = useTranslation()
   const { notify } = Toast
   const isUseInputMethod = useRef(false)
+  const code = useCodeParam()
 
   const [query, setQuery] = React.useState('')
   const handleContentChange = (e: any) => {
@@ -83,15 +85,15 @@ const Chat: FC<IChatProps> = ({
     onClear,
   } = useImageFiles()
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!valid() || (checkCanSend && !checkCanSend()))
       return
-    onSend(query, files.filter(file => file.progress !== -1).map(fileItem => ({
+    await onSend(query, files.filter(file => file.progress !== -1).map(fileItem => ({
       type: 'image',
       transfer_method: fileItem.type,
       url: fileItem.url,
       upload_file_id: fileItem.fileId,
-    })))
+    })), code)
     if (!files.find(item => item.type === TransferMethod.local_file && !item.fileId)) {
       if (files.length)
         onClear()
